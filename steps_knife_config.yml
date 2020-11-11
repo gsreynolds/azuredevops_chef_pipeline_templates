@@ -1,0 +1,39 @@
+steps:
+- task: chef-software.chef-preview.helpers.helper-preview@3
+  displayName: 'Configure Knife'
+  inputs:
+    helper: 'setupChef'
+    chefendpoint: 'Hosted Chef (greynolds)'
+
+# - task: DownloadSecureFile@1
+#   name: credentials
+#   displayName: 'Download credentials'
+#   inputs:
+#     secureFile: 'credentials'
+
+# - task: DownloadSecureFile@1
+#   name: greynoldspem
+#   displayName: 'Download greynolds.pem'
+#   inputs:
+#     secureFile: 'greynolds.pem'
+
+# - task: CmdLine@2
+#   displayName: 'Configure Chef Repo'
+#   inputs:
+#     script: |
+#       mkdir ~/.chef
+#       mv $(credentials.secureFilePath) ~/.chef
+#       mv $(greynoldspem.secureFilePath) ~/.chef
+#       ls ~/.chef
+
+# - task: chef-software.chef-preview.execute.component-preview@3
+#   displayName: 'Knife List Profiles'
+#   inputs:
+#     component: 'knife'
+#     arguments: 'config list-profiles'
+
+- task: chef-software.chef-preview.execute.component-preview@3
+  displayName: 'Knife Config Show'
+  inputs:
+    component: 'knife'
+    arguments: 'config show'

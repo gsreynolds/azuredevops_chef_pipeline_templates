@@ -1,0 +1,14 @@
+parameters:
+- name: PolicyfileName
+  type: string
+  default: 'Policyfile'
+
+stages:
+- stage: Prepare
+  jobs:
+    - job: PolicyfileLock
+      steps:
+      - template: steps_git_credentials_add.yml@pipeline_templates
+      - template: steps_policyfile_lock_publish_artifact.yml@pipeline_templates
+        parameters: { PolicyfileName: $(Build.Repository.Name) }
+      - template: steps_git_credentials_cleanup.yml@pipeline_templates

@@ -1,0 +1,22 @@
+parameters:
+- name: PolicyfileName
+  type: string
+  default: 'Policyfile'
+
+steps:
+- template: steps_chef_workstation_install.yml@pipeline_templates
+- task: chef-software.chef-preview.execute.component-preview@3
+  displayName: 'Policyfile Install'
+  inputs:
+    component: 'chef'
+    arguments: 'install ${{ parameters.PolicyfileName }}.rb'
+- task: chef-software.chef-preview.execute.component-preview@3
+  displayName: 'Policyfile Update'
+  inputs:
+    component: 'chef'
+    arguments: 'update ${{ parameters.PolicyfileName }}.rb'
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish PolicyfileLockJson Pipeline Artifact'
+  inputs:
+    targetPath: '${{ parameters.PolicyfileName }}.lock.json'
+    ArtifactName: 'PolicyfileLockJson'

@@ -1,0 +1,8 @@
+steps:
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Test Kitchen logs as Build Artifact'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/.kitchen/logs'
+    ArtifactName: 'kitchen-logs'
+    publishLocation: 'Container'
+  condition: always()

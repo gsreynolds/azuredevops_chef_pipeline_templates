@@ -1,0 +1,39 @@
+parameters:
+- name: PolicyfileName
+  type: string
+  default: 'Policyfile'
+
+stages:
+- stage: PublishPolicyfileArchive
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  jobs:
+  - job: Publish
+    steps:
+    - template: steps_chef_workstation_install.yml@pipeline_templates
+    - template: steps_git_credentials_add.yml@pipeline_templates
+    - template: steps_policyfile_lock_download_artifact.yml@pipeline_templates
+    - task: CmdLine@2
+      displayName: 'Install Policyfile'
+      inputs:
+        script: |
+          chef install ${{ parameters.PolicyfileName }}.rb
+    - task: CmdLine@2
+      displayName: 'Export Policyfile'
+      inputs:
+        script: chef export ${{ parameters.PolicyfileName }}.rb $(Build.ArtifactStagingDirectory) -a
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Policyfile Archive as Build Artifact'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: '${{ parameters.PolicyfileName }}'
+        publishLocation: 'Container'
+    - task: CmdLine@2
+      displayName: 'Commit Policyfile Lock'
+      inputs:
+        script: |
+          git config user.email "azurepipelines@visualstudio.com"
+          git config user.name "Azure Pipeline Build Agent"
+          git add ${{ parameters.PolicyfileName }}.lock.json
+          git commit -m "Update ${{ parameters.PolicyfileName }}.lock.json [skip ci]"
+          git push origin HEAD:master
+    - template: steps_git_credentials_cleanup.yml@pipeline_templates

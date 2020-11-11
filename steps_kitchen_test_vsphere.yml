@@ -1,0 +1,33 @@
+steps:
+- template: steps_chef_workstation_install.yml@pipeline_templates
+- template: git-credentials.yml@pipeline_templates
+
+- task: chef-software.chef-preview.helpers.helper-preview@3
+  displayName: Configure Test Kitchen
+  inputs:
+    helper: setupTestKitchen
+    azureendpoint: 'Customer Success'
+
+- task: chef-software.chef-preview.execute.component-preview@3
+  displayName: Test Kitchen - test
+  inputs:
+    component: kitchen
+    arguments: test
+    envvars: |
+      KITCHEN_YAML="kitchen.yml"
+      VCENTER_PASSWORD=$(VCENTER_PASSWORD)
+    workingdir: $(Build.SourcesDirectory)
+
+- task: chef-software.chef-preview.execute.component-preview@3
+  displayName: Test Kitchen - destroy
+  condition: always()
+  inputs:
+    component: kitchen
+    arguments: destroy
+    envvars: |
+      KITCHEN_YAML="kitchen.yml"
+      VCENTER_PASSWORD=$(VCENTER_PASSWORD)
+    workingdir: $(Build.SourcesDirectory)
+
+- template: steps_git_credentials_cleanup.yml@pipeline_templates
+- template: steps_kitchen_logs_publish_artifact.yml@pipeline_templates

@@ -1,0 +1,10 @@
+steps:
+- task: CmdLine@2
+  displayName: 'Git Tag'
+  inputs:
+    script: |
+      new_version=$(chef exec ruby -e 'require "chef/cookbook/metadata"; metadata=Chef::Cookbook::Metadata.new; metadata.from_file("metadata.rb"); puts metadata.version')
+      git config user.email "azurepipelines@visualstudio.com"
+      git config user.name "Azure Pipeline Build Agent"
+      git tag "v$new_version"
+      git push origin --tags

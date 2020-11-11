@@ -1,0 +1,39 @@
+steps:
+- template: steps_knife_config.yml@pipeline_templates
+- task: CmdLine@2
+  displayName: 'Write Cookbook Uploaded Check Script'
+  inputs:
+    script: |
+      cat << EOF > $(Agent.TempDirectory)/cookbook_uploaded_check.rb
+      #!/bin/env ruby
+
+      require 'chef/cookbook/metadata'
+      require 'json'
+
+      metadata = Chef::Cookbook::Metadata.new
+      metadata.from_file('metadata.rb')
+      cookbook = metadata.name
+      version = metadata.version
+      Chef::Log.info "Checking cookbook #{cookbook} version #{version}"
+
+      cookbooks = api.get('cookbooks?num_versions=all')
+
+      if cookbooks[cookbook].nil?
+        Chef::Log.info "Cookbook #{cookbook} does not exist on the Chef Infra Server."
+        return # No need to proceed, cookbook hasn't been uploaded before
+      end
+
+      unless cookbooks[cookbook]['versions'].select { |c| c['version'] == version }.empty?
+        Chef::Log.error cookbooks[cookbook]['versions']
+        raise "Cookbook #{cookbook} version #{version} exists on the Chef Infra Server!"
+      end
+
+      Chef::Log.info "Cookbook #{cookbook} version #{version} does not exist on the Chef Infra Server."
+
+      EOF
+
+- task: chef-software.chef-preview.execute.component-preview@3
+  displayName: 'Cookbook Uploaded Check'
+  inputs:
+    component: 'chef'
+    arguments: 'exec knife exec $(Agent.TempDirectory)/cookbook_uploaded_check.rb -V'

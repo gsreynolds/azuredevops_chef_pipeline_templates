@@ -1,0 +1,7 @@
+steps:
+- task: CmdLine@2
+  displayName: 'Git Tag Check'
+  inputs:
+    script: |
+      version=$(chef exec ruby -e 'require "chef/cookbook/metadata"; metadata=Chef::Cookbook::Metadata.new; metadata.from_file("metadata.rb"); puts metadata.version')
+      git rev-parse "v${version}"  >/dev/null 2>&1 && echo "Tag v${version} exists" && exit 1 || echo "Tag v${version} does not exist"

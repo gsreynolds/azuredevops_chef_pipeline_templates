@@ -1,0 +1,91 @@
+
+stages:
+- stage: ChefRepoLint
+  jobs:
+  - job: JSONLint
+    steps:
+    - task: CmdLine@2
+      displayName: 'Environments'
+      inputs:
+        script: |
+          for f in environments/*.json
+          do
+            echo $f
+            cat $f | jq -e .
+          done
+    - task: CmdLine@2
+      displayName: 'Roles'
+      inputs:
+        script: |
+          for f in roles/*.json
+          do
+            echo $f
+            cat $f | jq -e .
+          done
+    - task: CmdLine@2
+      displayName: 'Data Bags'
+      inputs:
+        script: |
+          for f in data_bags/*/*.json
+          do
+            echo $f
+            cat $f | jq -e .
+          done
+
+  - job: EnvironmentsCookbookVersionsCheck
+    steps:
+    - template: steps_chef_workstation_install.yml@pipeline_templates
+    - template: steps_knife_config.yml@pipeline_templates
+    - task: CmdLine@2
+      displayName: 'Write Cookbook Version Check Script'
+      inputs:
+        script: |
+          cat << EOF > $(Agent.TempDirectory)/env_check.rb
+          #!/bin/env ruby
+
+          require 'json'
+
+          environments = Dir['environments/*.json']
+          cookbooks = api.get('cookbooks?num_versions=all')
+
+          pass = true
+
+          environments.each do |environment|
+            environment_json = JSON.parse(File.read(environment))
+            Chef::Log.info "Checking #{environment_json['name']} environment"
+            environment_json['cookbook_versions'].each do |cookbook, version_pin|
+              Chef::Log.info "\t#{cookbook} #{version_pin}"
+              operator, version = version_pin.split
+              if operator != '='
+                Chef::Log.error "Environment #{environment_json['name']}: Cookbook #{cookbook} #{version_pin} version operator used. Must use equality = operator"
+                pass = false
+              end
+              if cookbooks[cookbook].nil?
+                Chef::Log.error "Environment #{environment_json['name']}: Cookbook #{cookbook} does not exist on the Chef Infra Server!"
+                pass = false
+                next # Skip to next cookbook as since it doesn't exist, we can't check for it's version
+              end
+              if cookbooks[cookbook]['versions'].select { |c| c['version'] == version }.empty?
+                Chef::Log.error "Environment #{environment_json['name']}: Cookbook #{cookbook} version #{version} does not exist on Chef Infra Server!"
+                pass = false
+              end
+            end
+
+            all_cookbook_names = cookbooks.keys.sort
+            all_pinned_cookbook_names = environment_json['cookbook_versions'].keys.sort
+
+            if all_cookbook_names != all_pinned_cookbook_names
+              Chef::Log.error "Environment #{environment_json['name']} does not pin all cookbooks. Missing #{all_cookbook_names - all_pinned_cookbook_names}"
+              pass = false
+            end
+          end
+
+          raise 'Environments not valid' unless pass
+
+          EOF
+
+    - task: chef-software.chef-preview.execute.component-preview@3
+      displayName: 'Cookbook Version Check'
+      inputs:
+        component: 'chef'
+        arguments: 'exec knife exec $(Agent.TempDirectory)/env_check.rb -V'

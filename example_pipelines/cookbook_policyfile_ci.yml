@@ -1,0 +1,27 @@
+trigger:
+- master
+
+pr:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+resources:
+  repositories:
+    - repository: pipeline_templates
+      type: git
+      name: pipeline_templates
+
+stages:
+- template: stage_cookbook_prep.yml@pipeline_templates
+- template: stage_cookbook_lintunit.yml@pipeline_templates
+- stage: Testing
+  jobs:
+  - job: TestKitchenAzure
+    steps:
+    - template: steps_kitchen_test_azure.yml@pipeline_templates
+  # - job: TestKitchenvSphere
+  #   steps:
+  #   - template: steps_kitchen_test_vsphere.yml@pipeline_templates
+- template: stage_cookbook_release.yml@pipeline_templates

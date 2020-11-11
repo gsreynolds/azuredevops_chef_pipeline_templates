@@ -1,0 +1,56 @@
+trigger:
+- master
+
+pr:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+resources:
+  repositories:
+    - repository: pipeline_templates
+      type: git
+      name: pipeline_templates
+
+stages:
+- template: stage_policyfile_prep.yml@pipeline_templates
+  parameters: { PolicyfileName: $(Build.Repository.Name) }
+- stage: Testing
+  jobs:
+  - job: TestKitchenAzure
+    steps:
+    - template: steps_policyfile_lock_download_artifact.yml@pipeline_templates
+    - template: steps_kitchen_test_azure.yml@pipeline_templates
+  # - job: TestKitchenvSphere
+  #   steps:
+  #   - template: steps_policyfile_lock_download_artifact.yml@pipeline_templates
+  #   - template: steps_kitchen_test_vsphere.yml@pipeline_templates
+
+- template: stage_policyfile_publish_archive_artifact.yml@pipeline_templates
+  parameters: { PolicyfileName: $(Build.Repository.Name) }
+
+- stage: ReleaseDev
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  jobs:
+  - deployment: ReleaseDev
+    displayName: Release to Development
+    environment: development
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - template: steps_policyfile_deploy_policygroup.yml@pipeline_templates
+
+- stage: ReleaseProd
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  dependsOn: ReleaseDev
+  jobs:
+  - deployment: ReleaseProd
+    displayName: Release to Production
+    environment: production
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - template: steps_policyfile_deploy_policygroup.yml@pipeline_templates

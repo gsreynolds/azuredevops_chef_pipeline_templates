@@ -1,0 +1,18 @@
+trigger:
+- master
+
+pr:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+resources:
+  repositories:
+    - repository: pipeline_templates
+      type: git
+      name: pipeline_templates
+
+stages:
+- template: stage_chefrepo_lint.yml@pipeline_templates
+- template: stage_chefrepo_upload.yml@pipeline_templates

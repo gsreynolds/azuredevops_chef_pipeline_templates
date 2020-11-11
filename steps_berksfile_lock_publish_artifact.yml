@@ -1,0 +1,17 @@
+steps:
+- template: steps_chef_workstation_install.yml@pipeline_templates
+- task: chef-software.chef-preview.execute.component-preview@3
+  displayName: 'Berks Install'
+  inputs:
+    component: 'berks'
+    arguments: 'install'
+- task: chef-software.chef-preview.execute.component-preview@3
+  displayName: 'Berks Update'
+  inputs:
+    component: 'berks'
+    arguments: 'update'
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish Berksfile.lock as Pipeline Artifact'
+  inputs:
+    targetPath: 'Berksfile.lock'
+    ArtifactName: 'BerksfileLock'

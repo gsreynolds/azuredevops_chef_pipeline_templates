@@ -1,0 +1,33 @@
+parameters:
+- name: Berksfile
+  type: boolean
+  default: false
+  
+stages:
+- stage: LintAndUnit
+  jobs:
+  - job: Cookstyle
+    steps:
+    - template: steps_chef_workstation_install.yml@pipeline_templates
+    - task: chef-software.chef-preview.execute.component-preview@3
+      displayName: 'Cookstyle'
+      inputs:
+        component: 'chef'
+        arguments: 'exec cookstyle'
+
+  - job: ChefSpec
+    steps:
+    - template: steps_chef_workstation_install.yml@pipeline_templates
+    - ${{ if eq(parameters.Berksfile, true) }}:
+      - task: DownloadPipelineArtifact@2
+        displayName: 'Download Berksfile.lock Pipeline Artifact'
+        inputs:
+          artifact: 'BerksfileLock'
+          path: $(Build.SourcesDirectory)
+    - ${{ if eq(parameters.Berksfile, false) }}:
+      - template: steps_policyfile_lock_download_artifact.yml@pipeline_templates
+    - task: chef-software.chef-preview.execute.component-preview@3
+      displayName: 'ChefSpec'
+      inputs:
+        component: 'chef'
+        arguments: 'exec rspec'

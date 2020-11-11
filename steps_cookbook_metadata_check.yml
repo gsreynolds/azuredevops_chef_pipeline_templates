@@ -1,0 +1,55 @@
+steps:
+- task: CmdLine@2
+  displayName: 'Write Metadata Check Script'
+  inputs:
+    script: |
+      cat << EOF > $(Agent.TempDirectory)/metadata_check.rb
+      #!/bin/env ruby
+
+      require 'chef/cookbook/metadata'
+
+      metadata = Chef::Cookbook::Metadata.new
+      metadata.from_file('metadata.rb')
+      cookbook = metadata.name
+      version = metadata.version
+      Chef::Log.info "Checking cookbook #{cookbook} version #{version}"
+
+      permitted_operators = %w(~> =)
+      pass = true
+
+      Chef::Log.info "Platforms: #{metadata.platforms}"
+      if metadata.platforms.empty?
+        Chef::Log.error "Cookbook #{cookbook} does not specify any platforms!"
+        pass = false
+      end
+
+      Chef::Log.info "Chef Versions: #{metadata.chef_versions}"
+      if metadata.chef_versions.empty?
+        Chef::Log.error "Cookbook #{cookbook} does not specify a chef_version!"
+        pass = false
+      end
+
+      metadata.dependencies.each do |dependency, constraint|
+        Chef::Log.info "Cookbook #{cookbook} depends on #{dependency} with constraint #{constraint}."
+        operator, version = constraint.split
+        if version == '0.0.0'
+          Chef::Log.error "Cookbook #{cookbook} does not pin to a version for #{dependency} cookbook!"
+          pass = false
+          next # skip as this is likely a depends without a version constraint
+        end
+
+        unless permitted_operators.include?(operator)
+          Chef::Log.error "Cookbook #{cookbook} does not use a permitted version constraint (#{permitted_operators}) for #{dependency} cookbook!"
+          pass = false
+        end
+      end
+
+      raise 'Cookbook metadata not valid' unless pass
+
+      EOF
+
+- task: chef-software.chef-preview.execute.component-preview@3
+  displayName: 'Cookbook Metadata Check'
+  inputs:
+    component: 'chef'
+    arguments: 'exec knife exec $(Agent.TempDirectory)/metadata_check.rb -V'

@@ -1,0 +1,12 @@
+steps:
+- task: chef-software.chef-preview.install.component-preview@3
+  displayName: 'Install Chef Workstation'
+  inputs:
+    component: 'chef-workstation'
+    sudo: true
+
+- task: chef-software.chef-preview.execute.component-preview@3
+  displayName: 'Chef Environment'
+  inputs:
+    component: 'chef'
+    arguments: 'env --chef-license accept'

@@ -1,0 +1,25 @@
+parameters:
+- name: Berksfile
+  type: boolean
+  default: false
+  
+stages:
+- stage: Prepare
+  jobs:
+    - job: Checks
+      steps:
+      - template: steps_chef_workstation_install.yml@pipeline_templates
+      - template: steps_cookbook_git_tag_check.yml@pipeline_templates
+      - ${{ if eq(parameters.Berksfile, true) }}:
+        - template: steps_cookbook_uploaded_check.yml@pipeline_templates
+      - template: steps_cookbook_metadata_check.yml@pipeline_templates
+
+    - ${{ if eq(parameters.Berksfile, true) }}:
+      - job: BerksfileLock
+        steps:
+        - template: steps_berksfile_lock_publish_artifact.yml@pipeline_templates
+
+    - ${{ if eq(parameters.Berksfile, false) }}:
+      - job: PolicyfileLock
+        steps:
+        - template: steps_policyfile_lock_publish_artifact.yml@pipeline_templates

@@ -1,0 +1,32 @@
+parameters:
+- name: Berksfile
+  type: boolean
+  default: false
+
+stages:
+- stage: Release
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  jobs:
+  - job: Release
+    steps:
+    - template: steps_chef_workstation_install.yml@pipeline_templates
+    - template: steps_git_credentials_add.yml@pipeline_templates
+    - ${{ if eq(parameters.Berksfile, true) }}:
+      - template: steps_knife_config.yml@pipeline_templates
+      - task: DownloadPipelineArtifact@2
+        displayName: 'Download Berksfile.lock Pipeline Artifact'
+        inputs:
+          artifact: 'BerksfileLock'
+          path: $(Build.SourcesDirectory)
+      - task: chef-software.chef-preview.execute.component-preview@3
+        displayName: 'Berks Install'
+        inputs:
+          component: 'berks'
+          arguments: 'install'
+      - task: chef-software.chef-preview.execute.component-preview@3
+        displayName: 'Berks Upload'
+        inputs:
+          component: 'berks'
+          arguments: 'upload'
+    - template: steps_cookbook_git_tag.yml@pipeline_templates
+    - template: steps_git_credentials_cleanup.yml@pipeline_templates
