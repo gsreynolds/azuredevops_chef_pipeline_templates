@@ -1,0 +1,28 @@
+steps:
+- task: CmdLine@2
+  displayName: 'Environments'
+  inputs:
+    script: |
+      for f in environments/*.json
+      do
+        echo $f
+        cat $f | jq -e .
+      done
+- task: CmdLine@2
+  displayName: 'Roles'
+  inputs:
+    script: |
+      for f in roles/*.json
+      do
+        echo $f
+        cat $f | jq -e .
+      done
+- task: CmdLine@2
+  displayName: 'Data Bags'
+  inputs:
+    script: |
+      for f in data_bags/*/*.json
+      do
+        echo $f
+        cat $f | jq -e .
+      done

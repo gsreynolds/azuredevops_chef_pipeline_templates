@@ -1,0 +1,18 @@
+steps:
+- task: chef-software.chef-preview.execute.component-preview@3
+  displayName: 'Upload Environments'
+  inputs:
+    component: 'knife'
+    arguments: 'upload environments'
+
+- task: chef-software.chef-preview.execute.component-preview@3
+  displayName: 'Upload Roles'
+  inputs:
+    component: 'knife'
+    arguments: 'upload roles'
+
+- task: chef-software.chef-preview.execute.component-preview@3
+  displayName: 'Upload Data Bags'
+  inputs:
+    component: 'knife'
+    arguments: 'upload data_bags'

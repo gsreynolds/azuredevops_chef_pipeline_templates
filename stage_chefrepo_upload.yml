@@ -6,32 +6,5 @@ stages:
     steps:
     - template: steps_chef_workstation_install.yml@pipeline_templates
     - template: steps_knife_config.yml@pipeline_templates
-    - task: CmdLine@2
-      displayName: 'Configure Chef Repo'
-      inputs:
-        script: |
-          # mkdir ~/.chef
-          # mv $(credentials.secureFilePath) ~/.chef
-          # mv $(greynoldspem.secureFilePath) ~/.chef
-          # echo 'cookbook_path ["$(Build.SourcesDirectory)/cookbooks"]' | tee -a ~/.chef/config.rb
-          # ls ~/.chef
-          echo 'cookbook_path ["$(Build.SourcesDirectory)/cookbooks"]' | tee -a $(Agent.TempDirectory)/chef/config.rb
-          ls $(Agent.TempDirectory)/chef
-
-    - task: chef-software.chef-preview.execute.component-preview@3
-      displayName: 'Upload Environments'
-      inputs:
-        component: 'knife'
-        arguments: 'upload environments'
-
-    - task: chef-software.chef-preview.execute.component-preview@3
-      displayName: 'Upload Roles'
-      inputs:
-        component: 'knife'
-        arguments: 'upload roles'
-
-    - task: chef-software.chef-preview.execute.component-preview@3
-      displayName: 'Upload Data Bags'
-      inputs:
-        component: 'knife'
-        arguments: 'upload data_bags'
+    - template: steps_chefrepo_knife_config.yml@pipeline_templates
+    - template: steps_chefrepo_upload.yml@pipeline_templates

@@ -1,0 +1,8 @@
+steps:
+- task: CmdLine@2
+  displayName: 'Configure Chef Repo'
+  inputs:
+    script: |
+      # mkdir ~/.chef
+      # echo 'cookbook_path ["$(Build.SourcesDirectory)/cookbooks"]' | tee -a ~/.chef/config.rb
+      echo 'cookbook_path ["$(Build.SourcesDirectory)/cookbooks"]' | tee -a $(Agent.TempDirectory)/chef/config.rb
