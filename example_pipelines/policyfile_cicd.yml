@@ -10,8 +10,10 @@ pool:
 resources:
   repositories:
     - repository: pipeline_templates
-      type: git
-      name: pipeline_templates
+      type: github
+      name: gsreynolds/azuredevops_chef_pipeline_templates
+      endpoint: github.com
+
 
 stages:
 - template: stage_policyfile_prep.yml@pipeline_templates
