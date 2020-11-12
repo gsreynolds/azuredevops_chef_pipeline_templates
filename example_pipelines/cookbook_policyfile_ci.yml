@@ -14,7 +14,6 @@ resources:
       name: gsreynolds/azuredevops_chef_pipeline_templates
       endpoint: github.com
 
-
 stages:
 - template: stage_cookbook_prep.yml@pipeline_templates
 - template: stage_cookbook_lintunit.yml@pipeline_templates

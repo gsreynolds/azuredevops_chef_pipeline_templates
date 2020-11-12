@@ -3,7 +3,7 @@ steps:
   displayName: 'Configure Knife'
   inputs:
     helper: 'setupChef'
-    chefendpoint: 'Hosted Chef (greynolds)'
+    chefendpoint: $(CHEF_ENDPOINT)
 
 # - task: DownloadSecureFile@1
 #   name: credentials
