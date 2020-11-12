@@ -1,12 +1,12 @@
 # Chef Azure DevOps CI/CD Pipelines templates and examples
 
-_Note: step use the `v3` of the [Azure DevOps Chef Extension](https://github.com/chef-partners/azuredevops-chef-extension)(currently in limited preview) but can be replaced with standard script step approach._
+_Note: steps use the `v3` of the [Azure DevOps Chef Extension](https://github.com/chef-partners/azuredevops-chef-extension)(currently in limited preview) but can be replaced with standard script step approach._
 
 ## Policyfile Workflow
 
 [Azure DevOps Pipelines YAML templates](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/templates?view=azure-devops) for common steps and stages, as well as examples of usage in complete pipelines in the `example_pipelines` directory for:
 
-* Cookbook CI/CD (with a Policyfile for dependency resolution only, instead of Berksfile)
+* **Cookbook CI (with a Policyfile for dependency resolution only, instead of Berksfile)**
   * Prep:
     * Git tag for version in `metadata.rb` does not exist yet
     * Cookbook `metadata.rb`:
@@ -21,7 +21,11 @@ _Note: step use the `v3` of the [Azure DevOps Chef Extension](https://github.com
     * kitchen-vsphere
   * Release:
     * Git Tagging with version in `metadata.rb`
-* Policyfile CI/CD, including promotion using [Azure DevOps Environments](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/environments?view=azure-devops) mapped to Chef Infra Server Policy Groups and [Approval checks](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/approvals?view=azure-devops&tabs=check-pass). Uses the new [YAML CD features in Azure DevOps Pipelines](https://devblogs.microsoft.com/devops/announcing-general-availability-of-azure-pipelines-yaml-cd/). Example of [Adding Approvals to Azure DevOps YAML Pipelines](https://medium.com/faun/adding-approvals-to-azure-devops-yaml-pipeline-21f41578677b).
+* **Policyfile CI/CD**
+  * Including promotion using [Azure DevOps Environments](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/environments?view=azure-devops) mapped to Chef Infra Server Policy Groups 
+    * Uses the new [YAML CD features in Azure DevOps Pipelines](https://devblogs.microsoft.com/devops/announcing-general-availability-of-azure-pipelines-yaml-cd/). 
+    * Example of [Adding Approvals to Azure DevOps YAML Pipelines](https://medium.com/faun/adding-approvals-to-azure-devops-yaml-pipeline-21f41578677b).
+    * [Azure DevOps Environments Approval checks](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/approvals?view=azure-devops&tabs=check-pass). 
   * Prep:
     * Update Policyfile Lock JSON (`chef install` and `chef update`)
     * Publish updated Policyfile Lock JSON as pipeline artifact
@@ -53,7 +57,7 @@ default['development']['test']['message'] = 'test message for development'
 default['production']['test']['message'] = 'test message for production'
 ```
 
-The Policyfile CI/CD pipeline also works with Policyfiles that use `include_policy` e.g.
+The Policyfile CI/CD pipeline also works with Policyfiles that use `include_policy` from another repo (by automatically commiting the Policyfile Lock JSON so it's available for other policies to include) e.g.
 
 ```ruby
 # This is the file server policy for all Chef managed file servers.
@@ -72,7 +76,7 @@ run_list 'openssh::default'
 ## Legacy Workflow
 
 `example_pipelines` directory also includes legacy workflow pipelines for:
-* Chef Repo (environment, roles, data bags) CI/CD
+* **Chef Repo CI/CD (environment, roles, data bags)**
   * Lint:
     * JSON Lint
     * Legacy Workflow safety checks including:
@@ -82,7 +86,7 @@ run_list 'openssh::default'
   * Upload:
     * Upload Roles, Environments and Data Bags
       
-* Cookbook with Berksfile CI/CD
+* **Cookbook CI/CD (with Berksfile)**
   * Prep:
     * Git tag for version in `metadata.rb` does not exist yet
     * Cookbook or cookbook version has not been uploaded to the Chef Infra Server organisation yet
@@ -100,6 +104,3 @@ run_list 'openssh::default'
   * Release:
     * Berks Upload
     * Git Tagging with version in `metadata.rb`
-  
-
-
