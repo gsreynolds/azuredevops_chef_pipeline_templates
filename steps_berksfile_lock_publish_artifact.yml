@@ -1,11 +1,11 @@
 steps:
 - template: steps_chef_workstation_install.yml@pipeline_templates
-- task: chef-software.chef-preview.execute.component-preview@3
+- task: chef-software.chef-azdo.execute.component@3
   displayName: 'Berks Install'
   inputs:
     component: 'berks'
     arguments: 'install'
-- task: chef-software.chef-preview.execute.component-preview@3
+- task: chef-software.chef-azdo.execute.component@3
   displayName: 'Berks Update'
   inputs:
     component: 'berks'

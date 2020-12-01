@@ -9,7 +9,7 @@ stages:
   - job: Cookstyle
     steps:
     - template: steps_chef_workstation_install.yml@pipeline_templates
-    - task: chef-software.chef-preview.execute.component-preview@3
+    - task: chef-software.chef-azdo.execute.component@3
       displayName: 'Cookstyle'
       inputs:
         component: 'chef'
@@ -26,7 +26,7 @@ stages:
           path: $(Build.SourcesDirectory)
     - ${{ if eq(parameters.Berksfile, false) }}:
       - template: steps_policyfile_lock_download_artifact.yml@pipeline_templates
-    - task: chef-software.chef-preview.execute.component-preview@3
+    - task: chef-software.chef-azdo.execute.component@3
       displayName: 'ChefSpec'
       inputs:
         component: 'chef'

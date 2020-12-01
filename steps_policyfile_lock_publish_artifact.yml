@@ -5,12 +5,12 @@ parameters:
 
 steps:
 - template: steps_chef_workstation_install.yml@pipeline_templates
-- task: chef-software.chef-preview.execute.component-preview@3
+- task: chef-software.chef-azdo.execute.component@3
   displayName: 'Policyfile Install'
   inputs:
     component: 'chef'
     arguments: 'install ${{ parameters.PolicyfileName }}.rb'
-- task: chef-software.chef-preview.execute.component-preview@3
+- task: chef-software.chef-azdo.execute.component@3
   displayName: 'Policyfile Update'
   inputs:
     component: 'chef'

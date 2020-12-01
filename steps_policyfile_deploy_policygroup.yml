@@ -5,22 +5,22 @@ steps:
   displayName: 'Rename Policy Archive'
 - template: steps_chef_workstation_install.yml@pipeline_templates
 - template: steps_knife_config.yml@pipeline_templates
-- task: chef-software.chef-preview.execute.component-preview@3
+- task: chef-software.chef-azdo.execute.component@3
   displayName: 'chef show-policy'
   inputs:
     component: chef
     arguments: 'show-policy $(Build.Repository.Name)'
-- task: chef-software.chef-preview.execute.component-preview@3
+- task: chef-software.chef-azdo.execute.component@3
   displayName: 'chef push-archive $(Environment.Name)'
   inputs:
     component: chef
     arguments: 'push-archive $(Environment.Name) $(Build.Repository.Name).tgz'
-- task: chef-software.chef-preview.execute.component-preview@3
+- task: chef-software.chef-azdo.execute.component@3
   displayName: 'chef show-policy'
   inputs:
     component: chef
     arguments: 'show-policy $(Build.Repository.Name)'
-- task: chef-software.chef-preview.execute.component-preview@3
+- task: chef-software.chef-azdo.execute.component@3
   displayName: 'chef show-policy $(Environment.Name)'
   inputs:
     component: chef

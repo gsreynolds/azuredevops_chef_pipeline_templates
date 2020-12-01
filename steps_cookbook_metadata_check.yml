@@ -48,7 +48,7 @@ steps:
 
       EOF
 
-- task: chef-software.chef-preview.execute.component-preview@3
+- task: chef-software.chef-azdo.execute.component@3
   displayName: 'Cookbook Metadata Check'
   inputs:
     component: 'chef'

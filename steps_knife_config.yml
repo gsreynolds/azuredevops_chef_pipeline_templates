@@ -1,5 +1,5 @@
 steps:
-- task: chef-software.chef-preview.helpers.helper-preview@3
+- task: chef-software.chef-azdo.helpers.helper@3
   displayName: 'Configure Knife'
   inputs:
     helper: 'setupChef'
@@ -26,13 +26,13 @@ steps:
 #       mv $(greynoldspem.secureFilePath) ~/.chef
 #       ls ~/.chef
 
-# - task: chef-software.chef-preview.execute.component-preview@3
+# - task: chef-software.chef-azdo.execute.component@3
 #   displayName: 'Knife List Profiles'
 #   inputs:
 #     component: 'knife'
 #     arguments: 'config list-profiles'
 
-- task: chef-software.chef-preview.execute.component-preview@3
+- task: chef-software.chef-azdo.execute.component@3
   displayName: 'Knife Config Show'
   inputs:
     component: 'knife'

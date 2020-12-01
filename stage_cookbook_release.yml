@@ -18,12 +18,12 @@ stages:
         inputs:
           artifact: 'BerksfileLock'
           path: $(Build.SourcesDirectory)
-      - task: chef-software.chef-preview.execute.component-preview@3
+      - task: chef-software.chef-azdo.execute.component@3
         displayName: 'Berks Install'
         inputs:
           component: 'berks'
           arguments: 'install'
-      - task: chef-software.chef-preview.execute.component-preview@3
+      - task: chef-software.chef-azdo.execute.component@3
         displayName: 'Berks Upload'
         inputs:
           component: 'berks'

@@ -1,6 +1,6 @@
 # Chef Azure DevOps CI/CD Pipelines templates and examples
 
-_Note: steps use the `v3` of the [Azure DevOps Chef Extension](https://github.com/chef-partners/azuredevops-chef-extension)(currently in limited preview) but can be replaced with standard script step approach._
+_Note: steps use the `v3` of the [Azure DevOps Chef Extension](https://github.com/chef-partners/azuredevops-chef-extension)._
 
 ## Policyfile Workflow
 
